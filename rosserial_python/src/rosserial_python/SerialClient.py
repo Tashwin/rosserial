@@ -395,6 +395,7 @@ class SerialClient:
 
     def txStopRequest(self, signal, frame):
         """ send stop tx request to arduino when receive SIGINT(Ctrl-c)"""
+        time.sleep(3)
         self.port.flushInput()
         self.port.write("\xff" + self.protocol_ver + "\x00\x00\xff\x0b\x00\xf4")
         # tx_stop_request is x0b
