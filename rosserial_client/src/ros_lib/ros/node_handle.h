@@ -53,6 +53,7 @@
  * rosserial_arduino. It must be changed in both this file and in
  * rosserial_python/src/rosserial_python/SerialClient.py
  */
+////Shouldn't this be 0xfd for Indigo ???
 #define MODE_PROTOCOL_VER   1
 #define PROTOCOL_VER1		0xff // through groovy
 #define PROTOCOL_VER2		0xfe // in hydro
@@ -111,7 +112,9 @@ namespace ros {
 
       Publisher * publishers[MAX_PUBLISHERS];
       Subscriber_ * subscribers[MAX_SUBSCRIBERS];
-
+      typedef void (*functiontype)();
+      functiontype shutdownCb;
+      functiontype initCb;
       /*
        * Setup Functions
        */
@@ -160,6 +163,14 @@ namespace ros {
         topic_ = 0;
       };
 
+      void begin( void(*f)())
+      {
+        this->initCb = f;
+      }
+      void shutdown( void(*f)() )
+      {
+        this->shutdownCb = f;
+      };
     protected:
       //State machine variables for spinOnce
       int mode_;
@@ -263,7 +274,11 @@ namespace ros {
                   req_param_resp.deserialize(message_in);
                   param_recieved= true;
               }else if(topic_ == TopicInfo::ID_TX_STOP){
+                  (*this->shutdownCb)();
                   configured_ = false;
+              }else if(topic_ == TopicInfo::ID_TX_START){
+                  (*this->initCb)();
+                  configured_ = true;
               }else{
                 if(subscribers[topic_-100])
                   subscribers[topic_-100]->callback( message_in );
@@ -432,7 +447,7 @@ namespace ros {
         message_out[1] = PROTOCOL_VER;
         message_out[2] = (uint8_t) ((uint16_t)l&255);
         message_out[3] = (uint8_t) ((uint16_t)l>>8);
-	message_out[4] = 255 - ((message_out[2] + message_out[3])%256);
+    	message_out[4] = 255 - ((message_out[2] + message_out[3])%256);
         message_out[5] = (uint8_t) ((int16_t)id&255);
         message_out[6] = (uint8_t) ((int16_t)id>>8);
 

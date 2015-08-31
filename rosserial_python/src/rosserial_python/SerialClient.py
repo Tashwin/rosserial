@@ -380,12 +380,17 @@ class SerialClient:
         self.callbacks[TopicInfo.ID_PARAMETER_REQUEST] = self.handleParameterRequest
         self.callbacks[TopicInfo.ID_LOG] = self.handleLoggingRequest
         self.callbacks[TopicInfo.ID_TIME] = self.handleTimeRequest
+        self.callbacks[TopicInfo.ID_TX_START] = self.handleStartRequest
 
         rospy.sleep(2.0) # TODO
         self.requestTopics()
         self.lastsync = rospy.Time.now()
-
+        self.handleStartRequest()
         signal.signal(signal.SIGINT, self.txStopRequest)
+
+    def handleStartRequest(self):
+        data_buffer = StringIO.StringIO()
+        self.send( TopicInfo.ID_TX_START, data_buffer.getvalue() )
 
     def requestTopics(self):
         """ Determine topics to subscribe/publish. """
@@ -395,7 +400,6 @@ class SerialClient:
 
     def txStopRequest(self, signal, frame):
         """ send stop tx request to arduino when receive SIGINT(Ctrl-c)"""
-        time.sleep(3)
         self.port.flushInput()
         self.port.write("\xff" + self.protocol_ver + "\x00\x00\xff\x0b\x00\xf4")
         # tx_stop_request is x0b

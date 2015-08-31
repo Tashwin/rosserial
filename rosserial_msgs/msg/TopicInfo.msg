@@ -7,6 +7,7 @@ uint16 ID_PARAMETER_REQUEST=6
 uint16 ID_LOG=7
 uint16 ID_TIME=10
 uint16 ID_TX_STOP=11
+uint16 ID_TX_START=12
 
 # The endpoint ID for this topic
 uint16 topic_id

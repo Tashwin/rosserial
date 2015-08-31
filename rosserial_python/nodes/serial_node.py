@@ -40,7 +40,7 @@ from rosserial_python import SerialClient, RosSerialServer
 import multiprocessing
 
 import sys
-   
+
 if __name__=="__main__":
 
     rospy.init_node("serial_node")
@@ -59,7 +59,7 @@ if __name__=="__main__":
         port_name  = sys.argv[1]
     if len(sys.argv) == 3 :
         tcp_portnum = int(sys.argv[2])
-    
+
     if port_name == "tcp" :
         server = RosSerialServer(tcp_portnum, fork_server)
         rospy.loginfo("Waiting for socket connections on port %d" % tcp_portnum)
@@ -75,7 +75,7 @@ if __name__=="__main__":
                 process.join()
             rospy.loginfo("All done")
 
-    else :          # Use serial port 
+    else :          # Use serial port
         rospy.loginfo("Connecting to %s at %d baud" % (port_name,baud) )
         client = SerialClient(port_name, baud)
         try:
